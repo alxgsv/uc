@@ -1,0 +1,20 @@
+inherit_gem:
+  rubocop-rails_config:
+    - config/rails.yml
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/HashSyntax:
+  Enabled: false
+
+Layout/AccessModifierIndentation:
+  Enabled: false
+
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: normal
+
+Layout/EmptyLinesAroundAccessModifier:
+  Enabled: true
+  EnforcedStyle: around
