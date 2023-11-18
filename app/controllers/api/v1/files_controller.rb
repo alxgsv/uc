@@ -91,6 +91,6 @@ class Api::V1::FilesController < ApplicationController
   end
 
   def file_params
-    params.require(:file).permit(:is_chunked_upload, :is_chunked_upload_complete, :filename, :size, :content_type, :part_size, :source_url, :content, :expires_at, metadata: {})
+    params.require(:file).permit(:is_chunked_upload, :is_chunked_upload_complete, :filename, :size, :content_type, :chunk_size, :source_url, :content, :expires_at, metadata: {})
   end
 end
