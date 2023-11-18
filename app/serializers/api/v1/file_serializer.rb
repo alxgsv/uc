@@ -34,16 +34,10 @@ class Api::V1::FileSerializer
         original_url: @uc_file&.original_file_url,
         original_name: @uc_file&.original_filename,
         size: @uc_file&.size,
-        multipart_upload: {
-          is_multipart_upload: @file.is_multipart_upload,
-          multipart_upload_part_size: @file.multipart_upload_part_size,
-          is_multipart_upload_complete: @file.is_multipart_upload_complete
-        },
-        timestamps: {
-          created_at: @file.created_at,
-          uploaded_at: @uc_file&.datetime_uploaded,
-          removed_at: @uc_file&.datetime_removed,
-          expires_at: @file.expires_at
+        chunked_upload: {
+          is_chunked_upload: @file.is_chunked_upload,
+          chunk_size: @file.chunked_upload_chunk_size,
+          is_complete: @file.is_chunked_upload_complete
         },
         metadata: FileMetadataService.new(self).show(@uc_file&.metadata),
         content: {
@@ -51,7 +45,11 @@ class Api::V1::FileSerializer
           video: {
             thumbnails_group_uuid: @file.video_thumbnails_group_uuid
           }
-        }
+        },
+        created_at: @file.created_at,
+        uploaded_at: @uc_file&.datetime_uploaded,
+        removed_at: @uc_file&.datetime_removed,
+        expires_at: @file.expires_at
       },
       relationships: {
         project: {
@@ -61,7 +59,7 @@ class Api::V1::FileSerializer
       authentication: {
         access_token: @file.access_token
       },
-      multipart_upload_urls: @file.multipart_upload_urls.to_a
+      chunked_upload_urls: @file.chunked_upload_urls.to_a
     }
   end
 end

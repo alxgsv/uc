@@ -40,9 +40,9 @@ class Api::V1::FilesController < ApplicationController
   def update
     file = @project.files.find_by(id: params[:id])
     FileMetadataService.new(file).update(params[:file][:metadata])
-    if file.is_multipart_upload && !file.is_multipart_upload_complete && file_params[:is_multipart_upload_complete] == "true"
-      file.is_multipart_upload_complete = true
-      file.multipart_upload_urls = []
+    if file.is_chunked_upload && !file.is_chunked_upload_complete && file_params[:is_chunked_upload_complete] == "true"
+      file.is_chunked_upload_complete = true
+      file.chunked_upload_urls = []
       Typhoeus.post(
         "https://upload.uploadcare.com/multipart/complete/",
         body: {
@@ -54,6 +54,7 @@ class Api::V1::FilesController < ApplicationController
     file.expires_at = file_params[:expires_at] if file_params[:expires_at]
 
     file.uploadcare_show_response = UploadcareService.file(file.uuid)
+    puts file.uploadcare_show_response.inspect
     file.save!
     @project.store_secret_key!(auth_token)
     render json: {
@@ -90,6 +91,6 @@ class Api::V1::FilesController < ApplicationController
   end
 
   def file_params
-    params.require(:file).permit(:is_multipart_upload, :is_multipart_upload_complete, :filename, :size, :content_type, :part_size, :source_url, :content, :expires_at, metadata: {})
+    params.require(:file).permit(:is_chunked_upload, :is_chunked_upload_complete, :filename, :size, :content_type, :part_size, :source_url, :content, :expires_at, metadata: {})
   end
 end

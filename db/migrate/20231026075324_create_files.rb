@@ -9,10 +9,10 @@ class CreateFiles < ActiveRecord::Migration[7.1]
       t.string :access_token, null: false, index: { unique: true }
       t.datetime :expires_at
       t.string :uploadcare_show_response_json
-      t.boolean :is_multipart_upload, default: false
-      t.boolean :is_multipart_upload_complete, default: false
-      t.integer :multipart_upload_part_size
-      t.string :multipart_upload_urls_json
+      t.boolean :is_chunked_upload, default: false
+      t.boolean :is_chunked_upload_complete, default: false
+      t.integer :chunked_upload_chunk_size
+      t.string :chunked_upload_urls_json
       t.string :video_thumbnails_group_uuid
       t.string :status
 

@@ -20,14 +20,14 @@ class Uc::File < ApplicationRecord
     self.uploadcare_show_response_json = response.to_json
   end
 
-  def multipart_upload_urls
-    return nil if multipart_upload_urls_json.blank?
+  def chunked_upload_urls
+    return nil if chunked_upload_urls_json.blank?
 
-    JSON.parse(multipart_upload_urls_json)
+    JSON.parse(chunked_upload_urls_json)
   end
 
-  def multipart_upload_urls=(urls)
-    self.multipart_upload_urls_json = urls.to_json
+  def chunked_upload_urls=(urls)
+    self.chunked_upload_urls_json = urls.to_json
   end
 
   def is_image?

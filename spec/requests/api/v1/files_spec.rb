@@ -37,16 +37,16 @@ RSpec.describe Api::V1::FilesController, type: :request do
     end
 
     it "should upload directly to s3" do
-      post "/api/v1/projects/#{uc_project_id}/files.json", params: { file: { is_multipart_upload: true, size: 18462554, part_size: 10485760, filename: "20mb.jpg", content_type: "image/jpeg" }, headers: uc_auth_header }
+      post "/api/v1/projects/#{uc_project_id}/files.json", params: { file: { is_chunked_upload: true, size: 18462554, chunk_size: 10485760, filename: "20mb.jpg", content_type: "image/jpeg" }, headers: uc_auth_header }
       id = response.data["id"]
-      urls = response.data["multipart_upload_urls"]
+      urls = response.data["chunked_upload_urls"]
       expect(response.data["attributes"]["status"]).to eq("pending")
       expect(response.data["attributes"]["uuid"]).not_to eq(nil)
       files = ["20mb_1.jpg", "20mb_2.jpg"]
       urls.each_with_index do |url, index|
         Typhoeus.put(url, body: File.read(Rails.root.join("spec", "fixtures", files[index])), headers: { "Content-Type": "application/octet-stream" })
       end
-      put "/api/v1/projects/#{uc_project_id}/files/#{id}.json", params: { file: { is_multipart_upload_complete: true } }, headers: uc_auth_header
+      put "/api/v1/projects/#{uc_project_id}/files/#{id}.json", params: { file: { is_chunked_upload_complete: true } }, headers: uc_auth_header
       expect(response.data["attributes"]["status"]).to eq("ready")
       expect(response.data["attributes"]["uuid"]).not_to eq(nil)
     end
@@ -54,9 +54,9 @@ RSpec.describe Api::V1::FilesController, type: :request do
 
   context "file update" do
     it "should set some keys in metadata" do
-      post "/api/v1/projects/#{uc_project_id}/files.json", headers: uc_auth_header, params: { file: { content: test_image_file, metadata: { m1: "1", m2: "2" } } }
+      post "/api/v1/projects/#{uc_project_id}/files.json", headers: uc_auth_header, params: { file: { content: test_image_file, metadata: { m1: "1", current_timestamp: "2023-11-05T07:09:30+00:00" } } }
       put "/api/v1/projects/#{uc_project_id}/files/#{response.data["id"]}.json", headers: uc_auth_header, params: { file: { metadata: [ { key: :m1, value: "2" } ] } }
-      expect(response.data["attributes"]["metadata"]).to eq({ m1: "2", m2: "2" }.stringify_keys)
+      expect(response.data["attributes"]["metadata"]).to eq({ m1: "2", current_timestamp: "2023-11-05T07:09:30+00:00" }.stringify_keys)
     end
 
     it "should rewrite metadata" do
@@ -77,7 +77,7 @@ RSpec.describe Api::V1::FilesController, type: :request do
       delete "/api/v1/projects/#{uc_project_id}/files/#{id}.json", headers: { "Authorization": "Bearer #{token}" }
       expect(response.status).to eq(200)
       expect(response.data["attributes"]["status"]).to eq("removed")
-      expect(response.data["attributes"]["timestamps"]["removed_at"]).to be_iso8601_date(Time.now.utc.iso8601, 10.seconds)
+      expect(response.data["attributes"]["removed_at"]).to be_iso8601_date(Time.now.utc.iso8601, 10.seconds)
     end
   end
 end

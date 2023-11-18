@@ -12,8 +12,8 @@ class FileUploadService
   def upload
     if @file_params[:source_url]
       upload_url(@file_params[:source_url])
-    elsif @file_params[:is_multipart_upload]
-      upload_multipart
+    elsif @file_params[:is_chunked_upload]
+      upload_chunked
     else
       upload_file(@file_params[:content])
     end
@@ -30,8 +30,8 @@ class FileUploadService
     @project.files.create!(id: @file_id, upload_token: token, source_url: @file_params[:source_url], expires_at: @file_params[:expires_at])
   end
 
-  def upload_multipart
-    part_size = @file_params[:part_size] || 5242880
+  def upload_chunked
+    chunk_size = @file_params[:chunk_size] || 5242880
     response = Typhoeus.post(
       "https://upload.uploadcare.com/multipart/start/",
       body: {
@@ -39,7 +39,7 @@ class FileUploadService
         "UPLOADCARE_STORE" => "1",
         filename: @file_params[:filename],
         size: @file_params[:size],
-        part_size: part_size,
+        part_size: chunk_size,
         content_type: @file_params[:content_type],
         metadata: @metadata
       }
@@ -49,13 +49,12 @@ class FileUploadService
     @project.files.create!(
       id: @file_id,
       uuid: result["uuid"],
-      is_multipart_upload: true,
-      multipart_upload_urls: parts,
-      multipart_upload_part_size: part_size,
+      is_chunked_upload: true,
+      chunked_upload_urls: parts,
+      chunked_upload_chunk_size: chunk_size,
       expires_at: @file_params[:expires_at])
   end
 
   def metadata
-
   end
 end
