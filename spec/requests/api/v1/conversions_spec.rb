@@ -10,7 +10,7 @@ RSpec.describe Api::V1::ConversionsController, type: :request do
       expect(response.data["attributes"]["format_current"]).to eq("mp4")
       expect(response.data["attributes"]["formats_available"]).to include("ogg")
 
-      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/video.json", params: { operations: "/format/ogg/-/quality/best/" }, headers: uc_auth_header
+      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/video.json", params: { recipe: "/format/ogg/-/quality/best/" }, headers: uc_auth_header
       expect(response.data["attributes"]["content"]["video"]["thumbnails_group_uuid"]).to be_present
     end
 
@@ -23,7 +23,7 @@ RSpec.describe Api::V1::ConversionsController, type: :request do
       expect(response.data["attributes"]["format_current"]).to eq("pdf")
       expect(response.data["attributes"]["formats_available"]).to include("docx")
 
-      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/document.json", params: { operations: "/format/png/" }, headers: uc_auth_header
+      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/document.json", params: { recipe: "/format/png/" }, headers: uc_auth_header
       expect(response.data["attributes"]["uuid"]).not_to be_blank
     end
 
@@ -33,10 +33,11 @@ RSpec.describe Api::V1::ConversionsController, type: :request do
       id = response.data["id"]
 
       get "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions.json", headers: uc_auth_header
+
       expect(response.data["attributes"]["format_current"]).to eq("png")
       expect(response.data["attributes"]["formats_available"]).to include("webp")
 
-      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/image.json", params: { operations: "/format/webp/" }, headers: uc_auth_header
+      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/image.json", params: { recipe: "/format/webp/" }, headers: uc_auth_header
       expect(response.data["id"]).not_to be_blank
     end
 
@@ -50,7 +51,7 @@ RSpec.describe Api::V1::ConversionsController, type: :request do
       expect(response.data["attributes"]["formats_available"]).to include("webp")
       expect(response.data["attributes"]["methods_available"]).to include("remove_bg")
 
-      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/remove_bg.json", params: { operations: "/position/original/" }, headers: uc_auth_header
+      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/remove_bg.json", params: { recipe: "/position/original/" }, headers: uc_auth_header
       expect(response.data["id"]).not_to be_blank
       id = response.data["id"]
 
@@ -71,7 +72,7 @@ RSpec.describe Api::V1::ConversionsController, type: :request do
       expect(response.data["attributes"]["formats_available"]).to include("webp")
       expect(response.data["attributes"]["methods_available"]).to include("remove_bg")
 
-      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/remove_bg.json", params: { operations: "/position/original/" }, headers: uc_auth_header
+      post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/remove_bg.json", params: { recipe: "/position/original/" }, headers: uc_auth_header
       expect(response.data["id"]).not_to be_blank
       id = response.data["id"]
 

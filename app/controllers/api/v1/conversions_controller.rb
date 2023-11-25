@@ -36,7 +36,7 @@ class Api::V1::ConversionsController < ApplicationController
         "Content-Type" => "application/json"
       },
       body: {
-        paths: ["#{@file.uuid}/video/-#{operations}"],
+        paths: ["#{@file.uuid}/video/-#{recipe}"],
         store: true
       }.to_json
     )
@@ -59,7 +59,7 @@ class Api::V1::ConversionsController < ApplicationController
         "Content-Type" => "application/json"
       },
       body: {
-        paths: ["#{@file.uuid}/document/-#{operations}"],
+        paths: ["#{@file.uuid}/document/-#{recipe}"],
         store: true
       }.to_json
     )
@@ -74,7 +74,7 @@ class Api::V1::ConversionsController < ApplicationController
   end
 
   def image
-    file = FileUploadService.new(@project, { source_url: "https://ucarecdn.com/#{@file.uuid}#{operations}" }, auth_token).upload
+    file = FileUploadService.new(@project, { source_url: "https://ucarecdn.com/#{@file.uuid}#{recipe}" }, auth_token).upload
     @project.store_secret_key!(auth_token)
     render json: {
       data: Api::V1::FileSerializer.new(file, auth_token: auth_token).serialize
@@ -82,7 +82,7 @@ class Api::V1::ConversionsController < ApplicationController
   end
 
   def remove_bg
-    remove_bg_params = operations.split("/-/").map { |paramval| paramval.sub(/^\//, "").sub(/\/$/, "") }.to_h { |paramvalue| paramvalue.split("/") }
+    remove_bg_params = recipe.split("/-/").map { |paramval| paramval.sub(/^\//, "").sub(/\/$/, "") }.to_h { |paramvalue| paramvalue.split("/") }
     request_id = Uploadcare::Addons.remove_bg(@file.uuid, **remove_bg_params).request_id
     result_file = @project.files.create!(request_id_remove_bg: request_id)
     render json: {
@@ -97,7 +97,7 @@ class Api::V1::ConversionsController < ApplicationController
     @file = @project.files.find_by!(id: params[:file_id])
   end
 
-  def operations
-    params[:operations]
+  def recipe
+    params[:recipe]
   end
 end
