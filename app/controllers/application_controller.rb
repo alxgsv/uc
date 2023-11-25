@@ -18,16 +18,25 @@ class ApplicationController < ActionController::Base
     }
   end
 
-  def authenticate_user!
-    if auth_token.blank?
-      render json: { errors: ["Unauthorized"] }, status: :unauthorized and return
-    end
-
+  def authenticated_user?
+    return false if auth_token.blank?
     return true if self.respond_to?(:resource_access_token, true) && resource_access_token && resource_access_token == auth_token
 
-    UploadcareService.with_credetials(@project.uuid, auth_token) do
-      Uploadcare::FileList.file_list(limit: 1)
+    begin
+      UploadcareService.with_credetials(@project.uuid, auth_token) do
+        Uploadcare::FileList.file_list(limit: 1)
+      end
+    rescue
+      return false
     end
+
+    true
+  end
+
+  def authenticate_user!
+    return if authenticated_user?
+
+    render json: { errors: ["Unauthorized"] }, status: :unauthorized and return
   end
 
   def with_uploadcare_authentication(&block)

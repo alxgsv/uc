@@ -34,6 +34,7 @@ class Api::V1::FileSerializer
         original_url: @uc_file&.original_file_url,
         original_name: @uc_file&.original_filename,
         size: @uc_file&.size,
+        original_protected: @file.original_protected,
         chunked_upload: {
           is_chunked_upload: @file.is_chunked_upload,
           chunk_size: @file.chunked_upload_chunk_size,

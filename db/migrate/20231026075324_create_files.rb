@@ -15,6 +15,7 @@ class CreateFiles < ActiveRecord::Migration[7.1]
       t.string :chunked_upload_urls_json
       t.string :video_thumbnails_group_uuid
       t.string :status
+      t.boolean :original_protected, default: true, null: false
 
       t.string :request_id_aws_rekognition_detect_labels
       t.string :request_id_aws_rekognition_moderate
