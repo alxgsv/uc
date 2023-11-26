@@ -43,9 +43,9 @@ class Api::V1::FileSerializer
         metadata: FileMetadataService.new(self).show(@uc_file&.metadata),
         content: {
           image: @uc_file&.content_info&.image,
-          video: {
+          video: ({
             thumbnails_group_id: @file.video_thumbnails_group_id
-          }
+          } if @file.is_video?),
         },
         created_at: @file.created_at,
         uploaded_at: @uc_file&.datetime_uploaded,
