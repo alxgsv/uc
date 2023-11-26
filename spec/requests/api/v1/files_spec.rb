@@ -1,6 +1,13 @@
 require "rails_helper"
 
 RSpec.describe Api::V1::FilesController, type: :request do
+  around(:each) do |example|
+    perform_enqueued_jobs do
+      post "/api/v1/projects/#{uc_project_id}/webhooks.json", headers: uc_auth_header, params: { webhook: { target_url: "http://localhost:8080/webhook", events: ["file.created", "file.updated", "file.deleted", "group.created", "group.updated", "group.deleted", "action.created", "action.updated"] } }
+      example.run
+    end
+  end
+
   context "file listing" do
     it "should list and paginate files" do
       post "/api/v1/projects/#{uc_project_id}/files.json", headers: uc_auth_header, params: { file: { content: test_image_file } }

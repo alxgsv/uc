@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_05_071018) do
+ActiveRecord::Schema[7.1].define(version: 2023_11_25_054317) do
+  create_table "actions", id: :string, force: :cascade do |t|
+    t.string "file_id", null: false
+    t.string "project_id", null: false
+    t.string "action_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "files", id: :string, force: :cascade do |t|
     t.bigint "project_id", null: false
     t.string "uuid"
@@ -25,6 +33,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_05_071018) do
     t.string "chunked_upload_urls_json"
     t.string "video_thumbnails_group_uuid"
     t.string "status"
+    t.boolean "original_protected", default: true, null: false
     t.string "request_id_aws_rekognition_detect_labels"
     t.string "request_id_aws_rekognition_moderate"
     t.string "request_id_clamav"
@@ -68,6 +77,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_05_071018) do
     t.string "target_url", null: false
     t.string "signing_secret", null: false
     t.string "events", null: false
+    t.string "version", default: "1", null: false
     t.boolean "is_active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

@@ -45,6 +45,7 @@ class Api::V1::ConversionsController < ApplicationController
     uuid = response_json["result"][0]["uuid"]
     thumbnails_group_uuid = response_json["result"][0]["thumbnails_group_uuid"]
     @result_file = @project.files.create!(uuid: uuid, video_thumbnails_group_uuid: thumbnails_group_uuid)
+    WebhooksService.new("file.created", @result_file).trigger
     render json: {
       data: Api::V1::FileSerializer.new(@result_file, auth_token: auth_token).serialize
     }
@@ -68,6 +69,7 @@ class Api::V1::ConversionsController < ApplicationController
     response_json = JSON.parse(response.body)
     uuid = response_json["result"][0]["uuid"]
     @result_file = @project.files.create!(uuid: uuid)
+    WebhooksService.new("file.created", @result_file).trigger
     render json: {
       data: Api::V1::FileSerializer.new(@result_file, auth_token: auth_token).serialize
     }
@@ -76,6 +78,7 @@ class Api::V1::ConversionsController < ApplicationController
   def image
     file = FileUploadService.new(@project, { source_url: "https://ucarecdn.com/#{@file.uuid}#{recipe}" }, auth_token).upload
     @project.store_secret_key!(auth_token)
+    WebhooksService.new("file.created", file).trigger
     render json: {
       data: Api::V1::FileSerializer.new(file, auth_token: auth_token).serialize
     }
@@ -85,6 +88,7 @@ class Api::V1::ConversionsController < ApplicationController
     remove_bg_params = recipe.split("/-/").map { |paramval| paramval.sub(/^\//, "").sub(/\/$/, "") }.to_h { |paramvalue| paramvalue.split("/") }
     request_id = Uploadcare::Addons.remove_bg(@file.uuid, **remove_bg_params).request_id
     result_file = @project.files.create!(request_id_remove_bg: request_id)
+    WebhooksService.new("file.created", result_file).trigger
     render json: {
       data: Api::V1::FileSerializer.new(result_file, auth_token: auth_token).serialize
     }

@@ -54,6 +54,7 @@ class Api::V1::FilesController < ApplicationController
     file.expires_at = file_params[:expires_at] if file_params[:expires_at]
     file.uploadcare_show_response = UploadcareService.file(file.uuid)
     file.save!
+    WebhooksService.new("file.updated", file).trigger
     @project.store_secret_key!(auth_token)
     render json: {
       data: Api::V1::FileSerializer.new(file, auth_token: project_secret_key).serialize
@@ -62,6 +63,10 @@ class Api::V1::FilesController < ApplicationController
 
   def create
     file = FileUploadService.new(@project, file_params, auth_token).upload
+    WebhooksService.new("file.created", file).trigger
+    if file.status == "pending"
+      FilePengingCheckJob.perform_later(file.id)
+    end
     @project.store_secret_key!(auth_token)
     render json: {
       data: Api::V1::FileSerializer.new(file, auth_token: project_secret_key).serialize
@@ -72,6 +77,7 @@ class Api::V1::FilesController < ApplicationController
     file = @project.files.find_by(id: params[:id])
     UploadcareService.delete(file.uuid)
     file.update!(uploadcare_show_response: UploadcareService.file(file.uuid))
+    WebhooksService.new("file.deleted", file).trigger
     render json: {
       data: Api::V1::FileSerializer.new(file, auth_token: project_secret_key).serialize
     }

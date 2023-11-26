@@ -23,6 +23,7 @@ class Api::V1::GroupsController < ApplicationController
   def create
     @group = @project.groups.create!(file_ids: file_ids, status: :pending)
     CreateGroupJob.perform_later(@group.id, file_ids)
+    WebhooksService.new("group.created", @group).trigger
     @project.store_secret_key!(auth_token)
     render json: {
       data: Api::V1::GroupSerializer.new(@group, auth_token: project_secret_key).serialize
@@ -32,6 +33,7 @@ class Api::V1::GroupsController < ApplicationController
   def update
     @group.update!(file_ids: file_ids, status: "pending")
     CreateGroupJob.perform_later(@group.id, file_ids)
+    WebhooksService.new("group.created", @group).trigger
     @project.store_secret_key!(auth_token)
     render json: {
       data: Api::V1::GroupSerializer.new(@group, auth_token: project_secret_key).serialize
@@ -40,6 +42,7 @@ class Api::V1::GroupsController < ApplicationController
 
   def destroy
     Uploadcare::Group.delete(@group.uuid)
+    WebhooksService.new("group.deleted", @group).trigger
     @project.store_secret_key!(auth_token)
   end
 

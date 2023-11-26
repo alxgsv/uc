@@ -20,7 +20,7 @@ class Api::V1::WebhooksController < ApplicationController
   end
 
   def create
-    WebhooksService.new(@project, auth_token).setup_uploadcare_webhooks
+    UploadcareWebhooksService.new(@project, auth_token).setup_uploadcare_webhooks
     @project.store_secret_key!(auth_token)
     webhook = @project.webhooks.create!(webhook_params)
     render json: {
@@ -45,18 +45,9 @@ class Api::V1::WebhooksController < ApplicationController
 
   def incoming
     event = params[:hook][:event]
-    @project.webhooks.each do |webhook|
-      next if !event.in?(webhook.events)
-
-      transformed_webhook = WebhooksService.new(@project, auth_token).transform_webhook(JSON.parse(request.raw_post)).to_json
-      Typhoeus.post(
-        webhook.target_url,
-        body: transformed_webhook,
-        headers: {
-          "X-Uc-Signature" => OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new("sha256"), webhook.signing_secret, transformed_webhook)
-        }
-      )
-    end
+    event = "file.updated" if event.in?(["file.uploaded", "file.infected", "file.stored", "file.info_updated"])
+    file = @project.files.find(params[:data][:metadata][:file_id])
+    WebhooksService.new(event, file).trigger
   end
 
   private
@@ -71,6 +62,6 @@ class Api::V1::WebhooksController < ApplicationController
   end
 
   def webhook_params
-    params.require(:webhook).permit(:target_url, :is_active, events: [])
+    params.require(:webhook).permit(:target_url, :is_active, :version, events: [])
   end
 end

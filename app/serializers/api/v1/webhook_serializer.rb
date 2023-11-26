@@ -3,7 +3,6 @@ class Api::V1::WebhookSerializer
     @webhook = webhook
   end
 
-
   def serialize
     {
       type: :webhooks,
@@ -12,6 +11,7 @@ class Api::V1::WebhookSerializer
         events: @webhook.events,
         target_url: @webhook.target_url,
         is_active: @webhook.is_active,
+        version: @webhook.version,
         signing_secret: @webhook.signing_secret
       },
       relationships: {

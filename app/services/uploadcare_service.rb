@@ -3,11 +3,14 @@ require "hashie/mash"
 
 class UploadcareService
   def self.with_credetials(public_key, secret_key, &block)
+    old_public_key = Uploadcare.config.public_key
+    old_secret_key = Uploadcare.config.secret_key
     Uploadcare.config.public_key = public_key
     Uploadcare.config.secret_key = secret_key
-    yield
-    Uploadcare.config.public_key = nil
-    Uploadcare.config.secret_key = nil
+    result = yield
+    Uploadcare.config.public_key = old_public_key
+    Uploadcare.config.secret_key = old_secret_key
+    result
   end
 
   def self.file(uuid)

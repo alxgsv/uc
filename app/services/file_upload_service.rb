@@ -54,7 +54,4 @@ class FileUploadService
       chunked_upload_chunk_size: chunk_size,
       expires_at: @file_params[:expires_at])
   end
-
-  def metadata
-  end
 end
