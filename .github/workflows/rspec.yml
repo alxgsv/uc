@@ -1,0 +1,28 @@
+name: CI RSpec Tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: RSpec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run bundle install
+        run: |
+          gem install bundler
+          bundle install --jobs 4 --retry 3
+
+      - name: Setup Database
+        run: bundle exec rails db:create db:migrate
+
+      - name: Build and test with rspec
+        env:
+          UC_PROJECT_ID: ${{ secrets.UC_PROJECT_ID }}
+          UC_SECRET_KEY: ${{ secrets.UC_SECRET_KEY }}
+          HOST: localhost
+        run: bundle exec rspec spec
