@@ -43,7 +43,7 @@ class Api::V1::ActionsController < ApplicationController
       WebhooksService.new("action.created", action).trigger
       ActionPendingCheckJob.perform_later(action.id)
     end
-    action ||= Uc::Action.find_by(project: @project, file: @file, action_type: :virus_scan)
+    action ||= Uc::Action.find_or_create_by(project: @project, file: @file, action_type: :virus_scan)
     uploadcare_file = UploadcareService.file(@file.uuid)
     @file.update!(uploadcare_show_response: uploadcare_file)
     render json: {
