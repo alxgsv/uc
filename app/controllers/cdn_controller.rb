@@ -1,10 +1,10 @@
 class CdnController < ApplicationController
   def show
-    if file = request.path.match(/\/(f-[^\/]+)\//)
+    if file = request.path.match(/\/(f-[^\/]+)\/?/)
       file_id = file[1]
       file = Uc::File.find(file_id)
 
-      if file.protect_original && !authenticated_user?
+      if request.path.match(/^\/cdn\/(f-[^\/]+)\/?$/) && file.original_protected && !authenticated_user?
         raise ActiveRecord::RecordNotFound
       end
 
