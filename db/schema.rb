@@ -32,6 +32,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_25_054317) do
     t.integer "chunked_upload_chunk_size"
     t.string "chunked_upload_urls_json"
     t.string "video_thumbnails_group_uuid"
+    t.string "video_thumbnails_group_id"
     t.string "status"
     t.boolean "original_protected", default: true, null: false
     t.string "request_id_aws_rekognition_detect_labels"

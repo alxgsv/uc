@@ -44,7 +44,7 @@ class Api::V1::FileSerializer
         content: {
           image: @uc_file&.content_info&.image,
           video: {
-            thumbnails_group_uuid: @file.video_thumbnails_group_uuid
+            thumbnails_group_id: @file.video_thumbnails_group_id
           }
         },
         created_at: @file.created_at,

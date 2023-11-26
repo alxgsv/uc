@@ -18,7 +18,7 @@ RSpec.describe Api::V1::ConversionsController, type: :request do
     expect(response.data["attributes"]["formats_available"]).to include("ogg")
 
     post "/api/v1/projects/#{uc_project_id}/files/#{id}/conversions/video.json", params: { recipe: "/format/ogg/-/quality/best/" }, headers: uc_auth_header
-    expect(response.data["attributes"]["content"]["video"]["thumbnails_group_uuid"]).to be_present
+    expect(response.data["attributes"]["content"]["video"]["thumbnails_group_id"]).to be_present
   end
 
   it "should convert document" do

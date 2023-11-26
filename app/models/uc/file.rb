@@ -5,6 +5,7 @@ class Uc::File < ApplicationRecord
   belongs_to :project, class_name: "Uc::Project"
 
   before_validation :generate_id, :generate_access_token
+  before_save :generate_video_thumbnails_group_id
 
   def self.generate_id
     "f-" + SecureRandom.alphanumeric(22)
@@ -46,5 +47,17 @@ class Uc::File < ApplicationRecord
 
   def generate_access_token
     self.access_token ||= "fat-" + SecureRandom.alphanumeric(22)
+  end
+
+  def generate_video_thumbnails_group_id
+    if changes.key?("video_thumbnails_group_uuid")
+      files = []
+      uploadcare_files = Uploadcare::Group.rest_info(video_thumbnails_group_uuid)["files"]
+      uploadcare_files.each do |uploadcare_file|
+        files << Uc::File.create_with(uploadcare_show_response: uploadcare_file).find_or_create_by(uuid: uploadcare_file["uuid"])
+      end
+      group = project.groups.create!(file_ids: files.map(&:id), status: :ready)
+      self.video_thumbnails_group_id = group.id
+    end
   end
 end

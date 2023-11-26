@@ -14,6 +14,7 @@ class CreateFiles < ActiveRecord::Migration[7.1]
       t.integer :chunked_upload_chunk_size
       t.string :chunked_upload_urls_json
       t.string :video_thumbnails_group_uuid
+      t.string :video_thumbnails_group_id
       t.string :status
       t.boolean :original_protected, default: true, null: false
 
